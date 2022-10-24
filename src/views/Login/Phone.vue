@@ -42,7 +42,6 @@ import { useRouter, useRoute } from "vue-router";
 import { isPhoneNumber } from "../../utils/checkPhone";
 import { ref, computed, watch, nextTick } from "vue";
 import { ElMessage } from "element-plus";
-import { postNumber } from "../../api/index";
 export default {
   setup() {
     const router = useRouter();

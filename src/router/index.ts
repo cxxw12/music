@@ -14,6 +14,7 @@ const Home = () => import('../views/Home.vue')
 const View = () => import('../views/View.vue')
 const Comment = () => import('../views/Comment.vue')
 const RecommendList = () => import('../views/Song/recommendList.vue')
+const playMusic = () => import('../views/Song/play.vue')
 
 //类型校验，规范化typescript，增加路由对象类型限制，好处：允许在基础路由里增加开发自定义属性
 const routes: RouteRecordRaw[] = [
@@ -72,6 +73,11 @@ const routes: RouteRecordRaw[] = [
       path: '/recommendList',
       name: 'RecommendList',
       component: RecommendList
+    },
+    {
+      path: '/song/play',
+      name: 'playMusic',
+      component: playMusic
     }
 
 ];

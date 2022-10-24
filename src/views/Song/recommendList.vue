@@ -56,6 +56,7 @@
         v-for="(item, index) in state.musicList"
         :key="item.id"
         class="song-item"
+        @click="playMusic(item.id)"
       >
         <div class="sort">{{ index + 1 }}</div>
         <div>
@@ -93,9 +94,18 @@ export default {
       state.shareCount = reactive(res.data.playlist.shareCount);
       state.subscribedCount = reactive(res.data.playlist.subscribedCount);
     });
+    function playMusic(id) {
+      router.push({
+        path: "/song/play",
+        query: {
+          id: id
+        }
+      })
+    }
     return {
       state,
       setBgColor,
+      playMusic
     };
   },
 };
@@ -113,7 +123,7 @@ export default {
       width: 100%;
       height: 240px;
       z-index: 1;
-      filter: blur(20px);
+      filter: blur(25px);
       .cover-img {
         width: 100%;
         height: 240px;
