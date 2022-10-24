@@ -43,12 +43,16 @@
         </div>
         <div class="progress-time">
           <p class="prev-time">{{ format(state.currentTime) }}</p>
-          <div class="progress" ref="progress" id="progress" @click="progressClick">
+          <div
+            class="progress"
+            ref="progress"
+            id="progress"
+            @click="progressClick"
+          >
             <div
               class="progress-prev"
               :style="{ width: state.curProgress }"
-            >
-            </div>
+            ></div>
             <div
               @touchstart.prevent="progressTouchStart"
               @touchmove.prevent="progressTouchMove"
@@ -121,7 +125,7 @@ export default {
       startX: 0,
       prevX: 0,
       endX: 0,
-    })
+    });
     const { proxy } = getCurrentInstance();
     onMounted(() => {
       getSongUrls();
@@ -205,28 +209,35 @@ export default {
       return minute + ":" + second;
     }
     function progressClick() {
-      state.curProgress = (event.offsetX / proxy.$refs.progress.clientWidth) * 100 + '%'
-      proxy.$refs.audio.currentTime = proxy.$refs.audio.duration *
-         (event.offsetX / proxy.$refs.progress.clientWidth)
+      state.curProgress =
+        (event.offsetX / proxy.$refs.progress.clientWidth) * 100 + "%";
+      proxy.$refs.audio.currentTime =
+        proxy.$refs.audio.duration *
+        (event.offsetX / proxy.$refs.progress.clientWidth);
+      touch.endX = event.offsetX ;
+      // touch.prevX = 0;
     }
     function progressTouchStart() {
-      touch.initiated = true
-      touch.startX = event.touches[0].pageX
-      console.log(touch)
+      touch.initiated = true;
+      touch.startX = event.touches[0].pageX;
+      console.log(touch);
     }
     function progressTouchMove() {
       if (!touch.initiated) {
-        return
+        return;
       }
-      touch.prevX = event.touches[0].pageX - touch.startX
-      let width = touch.prevX + touch.endX
-      state.curProgress = (width / proxy.$refs.progress.clientWidth) * 100 + '%'
-      proxy.$refs.audio.currentTime = proxy.$refs.audio.duration *
-          (width / proxy.$refs.progress.clientWidth)
+      touch.prevX = event.touches[0].pageX - touch.startX + touch.endX;
+      if(touch.prevX <= proxy.$refs.progress.clientWidth) {
+        state.curProgress =
+          (touch.prevX / proxy.$refs.progress.clientWidth) * 100 + "%";
+        proxy.$refs.audio.currentTime =
+          proxy.$refs.audio.duration *
+          (touch.prevX / proxy.$refs.progress.clientWidth);
+      }
     }
     function progressTouchEnd() {
-      touch.initiated = false,
-      touch.endX = touch.prevX
+      touch.initiated = false;
+      touch.endX = touch.prevX;
     }
     return {
       state,
@@ -238,7 +249,7 @@ export default {
       progressTouchStart,
       progressTouchMove,
       progressTouchEnd,
-      progressClick
+      progressClick,
     };
   },
 };
