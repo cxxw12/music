@@ -1,5 +1,6 @@
 <template>
-  <div class="container">
+  <div class="container" @click="state.isLyric = !state.isLyric">
+    <header-top :singer="state.singer" :songName="state.song"></header-top>
     <div class="header-background">
       <div class="background">
         <van-image
@@ -13,7 +14,7 @@
       </div>
     </div>
     <div class="content">
-      <div class="cd">
+      <div class="cd" v-if="!state.isLyric">
         <div class="cd-opacity">
           <div
             class="cd-black"
@@ -22,6 +23,13 @@
             <van-image round width="200px" height="200px" :src="state.picUrl" />
           </div>
         </div>
+      </div>
+      <div class="lyric" v-else> 
+        <scroll-list class="lyricList" :data="state.lyric" ref="lyricList">
+          <div>
+            <p class="lrcitem" v-for="item in state.lyric" :key="item.time">{{item.lrcitem}}</p>
+          </div>
+        </scroll-list>
       </div>
       <div class="footer">
         <div class="bottom-icon">
@@ -78,7 +86,7 @@
           </div>
           <div class="option-icon" @click="stopSong" v-else>
             <img
-              src="../../assets/img/stop.png"
+              src="../../assets/img/stop (2).png"
               style="width: 50px; height: 50px"
             />
           </div>
@@ -103,10 +111,18 @@
 import { useRoute, useRouter } from "vue-router";
 import { reactive, onMounted, ref, getCurrentInstance } from "vue";
 import { getSongUrl, getLyric, getSongDetail } from "../../api/song.js";
+import { useStore } from "vuex";
+import headerTop from "./components/header.vue";
+import scrollList from "./components/scroll.vue"
 export default {
+  components: {
+    headerTop,
+    scrollList
+  },
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const store = useStore();
     let id = route.query.id;
     let state = reactive({
       showplay: true,
@@ -119,6 +135,9 @@ export default {
       currentTime: 0,
       duration: "",
       clientX: 0,
+      isLyric: false,
+      singer: '',
+      song: ''
     });
     let touch = reactive({
       initiated: true,
@@ -131,6 +150,7 @@ export default {
       getSongUrls();
       getLyrics();
       getSongDetails();
+      store.commit("getButtomMusic", state);
     });
     // 获取歌曲url
     const getSongUrls = async () => {
@@ -142,6 +162,8 @@ export default {
       let res = await getSongDetail(id);
       state.picUrl = res.data.songs[0].al.picUrl;
       state.arId = res.data.songs[0].ar[0].id;
+      state.singer = res.data.songs[0].ar[0].name;
+      state.song = res.data.songs[0].al.name;
     };
     // 获取歌词
     const getLyrics = async () => {
@@ -168,7 +190,7 @@ export default {
           let s = timelist[1];
           let time = parseFloat(m) * 60 + parseFloat(s); //计算时间
           let lrcitem = lyclist[i].replace(re, ""); //获取歌词
-          state.lyric.push([time, lrcitem]);
+          state.lyric.push({time, lrcitem});
         }
       }
       console.log(state.lyric);
@@ -334,10 +356,25 @@ export default {
         border-radius: 50%;
       }
     }
+    .lyric {
+      position: absolute;
+      top: 100px;
+      text-align: center;
+      width: 100%;
+      bottom: 200px;
+      color: #bdbed0;
+      overflow: hidden;
+      .lyricList {
+        overflow: hidden;
+        .lrcitem {
+          padding-top: 10px;
+        }
+      }
+    }
     .footer {
       position: absolute;
       width: 100%;
-      bottom: 50px;
+      bottom: 0;
       .bottom-icon {
         display: flex;
         height: 100px;
