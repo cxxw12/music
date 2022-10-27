@@ -1,5 +1,5 @@
 <template>
-  <div class="container" @click="state.isLyric = !state.isLyric">
+  <div class="container">
     <header-top :singer="state.singer" :songName="state.song"></header-top>
     <div class="header-background">
       <div class="background">
@@ -14,8 +14,8 @@
       </div>
     </div>
     <div class="content">
-      <div class="cd" v-if="!state.isLyric">
-        <div class="cd-opacity">
+      <div @click="switchLyric">
+        <div class="cd" v-if="!state.isLyric">
           <div
             class="cd-black"
             :style="{ 'animation-play-state': state.animationShow }"
@@ -23,13 +23,25 @@
             <van-image round width="200px" height="200px" :src="state.picUrl" />
           </div>
         </div>
-      </div>
-      <div class="lyric" v-else> 
-        <scroll-list class="lyricList" :data="state.lyric" ref="lyricList">
-          <div>
-            <p class="lrcitem" v-for="item in state.lyric" :key="item.time">{{item.lrcitem}}</p>
-          </div>
-        </scroll-list>
+        <div class="lyric" v-else>
+          <scroll-list
+            class="lyricList"
+            :data="state.lyric.lines"
+            ref="lyricList"
+          >
+            <div>
+              <p
+                class="lrcitem"
+                ref="lyricLine"
+                v-for="(item, index) in state.lyric.lines"
+                :key="item.key"
+                :class="{ current: state.currentLineNum === index }"
+              >
+                {{ item.txt }}
+              </p>
+            </div>
+          </scroll-list>
+        </div>
       </div>
       <div class="footer">
         <div class="bottom-icon">
@@ -78,13 +90,17 @@
           <div class="option-icon">
             <img src="../../assets/img/prev.png" />
           </div>
-          <div class="option-icon" @click="playSong" v-if="state.showplay">
+          <div
+            class="option-icon"
+            @click.prevent="playSong"
+            v-if="state.showplay"
+          >
             <img
               src="../../assets/img/play.png"
               style="width: 50px; height: 50px"
             />
           </div>
-          <div class="option-icon" @click="stopSong" v-else>
+          <div class="option-icon" @click.prevent="stopSong" v-else>
             <img
               src="../../assets/img/stop (2).png"
               style="width: 50px; height: 50px"
@@ -113,11 +129,12 @@ import { reactive, onMounted, ref, getCurrentInstance } from "vue";
 import { getSongUrl, getLyric, getSongDetail } from "../../api/song.js";
 import { useStore } from "vuex";
 import headerTop from "./components/header.vue";
-import scrollList from "./components/scroll.vue"
+import scrollList from "./components/scroll.vue";
+import Lyric from "lyric-parser";
 export default {
   components: {
     headerTop,
-    scrollList
+    scrollList,
   },
   setup() {
     const route = useRoute();
@@ -127,7 +144,7 @@ export default {
     let state = reactive({
       showplay: true,
       url: "",
-      lyric: [], //歌词
+      lyric: {}, //歌词
       picUrl: "", //歌曲封面
       arId: "", //歌手id
       animationShow: "paused", //cd旋转
@@ -136,8 +153,9 @@ export default {
       duration: "",
       clientX: 0,
       isLyric: false,
-      singer: '',
-      song: ''
+      singer: "",
+      song: "",
+      currentLineNum: 0,
     });
     let touch = reactive({
       initiated: true,
@@ -148,7 +166,7 @@ export default {
     const { proxy } = getCurrentInstance();
     onMounted(() => {
       getSongUrls();
-      getLyrics();
+      // getLyrics();
       getSongDetails();
       store.commit("getButtomMusic", state);
     });
@@ -168,37 +186,55 @@ export default {
     // 获取歌词
     const getLyrics = async () => {
       let res = await getLyric(id);
-      let lycc = res.data.lrc.lyric;
-      let lyclist = lycc.split("\n");
-      let re = /\[\d{2}:\d{2}\.\d{2,3}\]/; //匹配时间
-      for (let i in lyclist) {
-        if (lyclist[i]) {
-          let date = lyclist[i].match(re); //匹配时间
-          date = date[0].slice(1, -1); //去除【】
-          let timelist = date.split(":"); //以:分割
-          let m = timelist[0]; //分
-          let s = timelist[1]; //秒
-          let time = parseFloat(m) * 60 + parseFloat(s); //计算时间
-        }
+      state.lyric = new Lyric(res.data.lrc.lyric, handleLyric);
+      proxy.$refs.lyricList.refresh();
+      // state.lyric.play()
+      state.currentLineNum = 0;
+      proxy.$refs.lyricList.scrollTo(0, 0, 1000);
+      state.animationShow = "running";
+      // proxy.$refs.audio.play();
+      // let lycc = res.data.lrc.lyric;
+      // let lyclist = lycc.split("\n");
+      // let re = /\[\d{2}:\d{2}\.\d{2,3}\]/; //匹配时间
+      // for (let i in lyclist) {
+      //   if (lyclist[i]) {
+      //     let date = lyclist[i].match(re); //匹配时间
+      //     date = date[0].slice(1, -1); //去除【】
+      //     let timelist = date.split(":"); //以:分割
+      //     let m = timelist[0]; //分
+      //     let s = timelist[1]; //秒
+      //     let time = parseFloat(m) * 60 + parseFloat(s); //计算时间
+      //   }
+      // }
+      // for (let i in lyclist) {
+      //   if (lyclist[i]) {
+      //     let date = lyclist[i].match(re); //匹配时间
+      //     date = date[0].slice(1, -1); //去除【】
+      //     let timelist = date.split(":"); //以:分割
+      //     let m = timelist[0];
+      //     let s = timelist[1];
+      //     let time = parseFloat(m) * 60 + parseFloat(s); //计算时间
+      //     let lrcitem = lyclist[i].replace(re, ""); //获取歌词
+      //     state.lyric.push({ time, lrcitem });
+      //   }
+      // }
+      // console.log(state.lyric);
+    };
+    const handleLyric = ({ lineNum, txt }) => {
+      state.currentLineNum = lineNum;
+      if (lineNum > 5) {
+        let lineEl = proxy.$refs.lyricLine[lineNum - 5];
+        proxy.$refs.lyricList.scrollToElement(lineEl, 1000);
+      } else {
+        proxy.$refs.lyricList.scrollTo(0, 0, 1000);
       }
-      for (let i in lyclist) {
-        if (lyclist[i]) {
-          let date = lyclist[i].match(re); //匹配时间
-          date = date[0].slice(1, -1); //去除【】
-          let timelist = date.split(":"); //以:分割
-          let m = timelist[0];
-          let s = timelist[1];
-          let time = parseFloat(m) * 60 + parseFloat(s); //计算时间
-          let lrcitem = lyclist[i].replace(re, ""); //获取歌词
-          state.lyric.push({time, lrcitem});
-        }
-      }
-      console.log(state.lyric);
     };
     // 播放
     function playSong() {
       state.showplay = false;
       state.animationShow = "running";
+      if(JSON.stringify(state.lyric) != '{}')
+      state.lyric.play();
       proxy.$refs.audio.play();
     }
     // 暂停
@@ -206,6 +242,7 @@ export default {
       state.showplay = true;
       state.animationShow = "paused";
       proxy.$refs.audio.pause();
+      state.lyric.stop();
     }
     // 进度条设置
     function timeupdate() {
@@ -218,6 +255,9 @@ export default {
         state.showplay = true;
         state.animationShow = "paused";
         proxy.$refs.audio.pause();
+      }
+      if (!state.showplay && state.isLyric && JSON.stringify(state.lyric) != '{}') {
+        state.lyric.seek(proxy.$refs.audio.currentTime * 1000);
       }
     }
     // 格式化时间
@@ -236,20 +276,19 @@ export default {
       proxy.$refs.audio.currentTime =
         proxy.$refs.audio.duration *
         (event.offsetX / proxy.$refs.progress.clientWidth);
-      touch.endX = event.offsetX ;
-      // touch.prevX = 0;
+      touch.endX = event.offsetX;
+      state.lyric.seek(proxy.$refs.audio.currentTime * 1000);
     }
     function progressTouchStart() {
       touch.initiated = true;
       touch.startX = event.touches[0].pageX;
-      console.log(touch);
     }
     function progressTouchMove() {
       if (!touch.initiated) {
         return;
       }
       touch.prevX = event.touches[0].pageX - touch.startX + touch.endX;
-      if(touch.prevX <= proxy.$refs.progress.clientWidth) {
+      if (touch.prevX <= proxy.$refs.progress.clientWidth) {
         state.curProgress =
           (touch.prevX / proxy.$refs.progress.clientWidth) * 100 + "%";
         proxy.$refs.audio.currentTime =
@@ -260,6 +299,14 @@ export default {
     function progressTouchEnd() {
       touch.initiated = false;
       touch.endX = touch.prevX;
+    }
+    function switchLyric() {
+      if(state.isLyric) {
+        state.lyric.stop();
+      } else if (!state.isLyric && JSON.stringify(state.lyric) == '{}') {
+        getLyrics()
+      }
+      state.isLyric = !state.isLyric
     }
     return {
       state,
@@ -272,6 +319,7 @@ export default {
       progressTouchMove,
       progressTouchEnd,
       progressClick,
+      switchLyric
     };
   },
 };
@@ -337,6 +385,7 @@ export default {
         justify-content: center;
         opacity: 1;
         animation: myfirst 15s infinite linear;
+        box-shadow: 0 0 0 20px rgba(255, 255, 255, 0.16);
       }
       @keyframes myfirst {
         from {
@@ -346,15 +395,6 @@ export default {
           transform: rotate(360deg);
         }
       }
-      .cd-opacity {
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 255, 255, 0.16);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-      }
     }
     .lyric {
       position: absolute;
@@ -363,11 +403,14 @@ export default {
       width: 100%;
       bottom: 200px;
       color: #bdbed0;
-      overflow: hidden;
       .lyricList {
+        height: 500px;
         overflow: hidden;
         .lrcitem {
           padding-top: 10px;
+          &.current {
+            color: #fff;
+          }
         }
       }
     }

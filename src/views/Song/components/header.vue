@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <van-icon name="arrow-down" />
+    <van-icon name="arrow-down" @click="goHistory"/>
     <div>
       <div>{{songName}}</div>
       <div class="singer">{{singer}}</div>
@@ -15,6 +15,14 @@ export default {
   props:{
     songName: String,
     singer: String
+  },
+  setup() {
+    function goHistory() {
+      history.go(-1)
+    }
+    return {
+      goHistory
+    }
   }
 }
 </script>

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "better-scroll": "^2.5.0",
+    "lyric-parser": "^1.0.1",
     "mitt": "^3.0.0",
     "node-sass": "^7.0.1",
     "pubsub-js": "^1.9.4",

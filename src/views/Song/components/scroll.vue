@@ -1,5 +1,5 @@
 <template>
-  <div ref="wrapper">
+  <div ref="wrapper" class="wrapper">
     <slot></slot>
   </div>
 </template>
@@ -34,7 +34,7 @@ export default {
     }
   },
   mounted () {
-    setTimeout(() => {
+    this.$nextTick(() => {
       this._initScroll()
     })
   },
@@ -73,6 +73,7 @@ export default {
     },
     scrollTo () {
       this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
+      console.log(this.scroll)
     },
     scrollToElement () {
       this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
