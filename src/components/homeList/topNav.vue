@@ -2,14 +2,27 @@
   <div class="header">
     <img src="../../assets/img/more.png" />
     <div class="search">
-      <van-field v-model="value" placeholder="分身情人-魏晨" />
+      <van-field v-model="value" placeholder="分身情人-魏晨" @focus="gotoSearch"/>
     </div>
     <img src="../../assets/img/mkf.png" />
   </div>
 </template>
 
 <script>
-export default {};
+import { useRouter } from "vue-router" 
+export default {
+  setup() {
+    const router = useRouter()
+    function gotoSearch() {
+      router.push({
+        path: '/search'
+      })
+    }
+    return {
+      gotoSearch
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>

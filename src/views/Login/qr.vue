@@ -2,8 +2,8 @@
   <img :src="imgSrc"/>
 </template>
 <script >
-import { ref, computed, watch, nextTick, onMounted } from "vue";
-import { anonimousLogin, loginRrKey, loginRrCreate, loginRrCheck, loginStatus } from "../../api/login";
+import { onMounted } from "vue";
+import { loginStatus } from "../../api/login";
 import { useRoute, useRouter } from "vue-router"
 export default {
   setup() {

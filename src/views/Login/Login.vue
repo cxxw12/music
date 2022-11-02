@@ -47,8 +47,8 @@ export default {
     //游客登陆
     async function handleLogin() {
       const res = await anonimousLogin()
-      localStorage.setItem('cookie', res.cookie)
-      localStorage.setItem('userId', res.userId)
+      localStorage.setItem('cookie', res.data.cookie)
+      localStorage.setItem('userId', res.data.userId)
       router.push({
         path: "/home",
         name: "Home"

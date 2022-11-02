@@ -12,12 +12,6 @@
         <swiper-com></swiper-com>
         <recommend-list></recommend-list>
         <recommend-song></recommend-song>
-        <!-- <icon-list></icon-list>
-        <music-list></music-list>
-        <vidoe-list></vidoe-list>
-        <radio-list></radio-list>
-
-        <list-botton></list-botton> -->
         <van-tabbar v-model="active" active-color="#fa3d43">
           <van-tabbar-item icon="home-o">发现</van-tabbar-item>
           <van-tabbar-item icon="search" dot>播客</van-tabbar-item>

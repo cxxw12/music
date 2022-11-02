@@ -38,6 +38,7 @@
         style="border-right: 1px solid #ececec; height: 20px; margin-top: 10px"
       >
         <img src="../../assets/img/comment.png" class="center-icon" />
+        <!-- <i class="iconfont icon-faxian"></i> -->
         <p>{{ state.commentCount }}</p>
       </div>
       <div class="center-item">

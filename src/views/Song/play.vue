@@ -1,11 +1,11 @@
 <template>
   <div class="container">
-    <header-top :singer="state.singer" :songName="state.song"></header-top>
+    <header-top :singer="singer" :songName="song"></header-top>
     <div class="header-background">
       <div class="background">
         <van-image
           fit="cover"
-          :src="state.picUrl"
+          :src="picUrl"
           class="cover-img"
           width="100%"
           heigth="100vh"
@@ -15,27 +15,27 @@
     </div>
     <div class="content">
       <div @click="switchLyric">
-        <div class="cd" v-if="!state.isLyric">
+        <div class="cd" v-if="!isLyric">
           <div
             class="cd-black"
-            :style="{ 'animation-play-state': state.animationShow }"
+            :style="{ 'animation-play-state': animationShow }"
           >
-            <van-image round width="200px" height="200px" :src="state.picUrl" />
+            <van-image round width="200px" height="200px" :src="picUrl" />
           </div>
         </div>
         <div class="lyric" v-else>
           <scroll-list
             class="lyricList"
-            :data="state.lyric.lines"
+            :data="lyric.lines"
             ref="lyricList"
           >
             <div>
               <p
                 class="lrcitem"
                 ref="lyricLine"
-                v-for="(item, index) in state.lyric.lines"
+                v-for="(item, index) in lyric.lines"
                 :key="item.key"
-                :class="{ current: state.currentLineNum === index }"
+                :class="{ current: currentLineNum === index }"
               >
                 {{ item.txt }}
               </p>
@@ -56,13 +56,14 @@
           </div>
           <div class="option-icon">
             <img src="../../assets/img/comment2.png" />
+            <!-- <p>999+</p> -->
           </div>
           <div class="option-icon">
             <img src="../../assets/img/more2.png" />
           </div>
         </div>
         <div class="progress-time">
-          <p class="prev-time">{{ format(state.currentTime) }}</p>
+          <p class="prev-time">{{ format(currentTime) }}</p>
           <div
             class="progress"
             ref="progress"
@@ -71,17 +72,17 @@
           >
             <div
               class="progress-prev"
-              :style="{ width: state.curProgress }"
+              :style="{ width: curProgress }"
             ></div>
             <div
-              @touchstart.prevent="progressTouchStart"
-              @touchmove.prevent="progressTouchMove"
-              @touchend.prevent="progressTouchEnd"
+              @touchstart.stop="progressTouchStart"
+              @touchmove.stop="progressTouchMove"
+              @touchend.stop="progressTouchEnd"
               class="progress-circle"
-              :style="{ left: state.curProgress }"
+              :style="{ left: curProgress }"
             ></div>
           </div>
-          <p class="next-time">{{ format(state.duration) }}</p>
+          <p class="next-time">{{ format(duration) }}</p>
         </div>
         <div class="bottom-icon">
           <div class="option-icon">
@@ -92,15 +93,15 @@
           </div>
           <div
             class="option-icon"
-            @click.prevent="playSong"
-            v-if="state.showplay"
+            @click.stop="playSong"
+            v-if="showplay"
           >
             <img
               src="../../assets/img/play.png"
               style="width: 50px; height: 50px"
             />
           </div>
-          <div class="option-icon" @click.prevent="stopSong" v-else>
+          <div class="option-icon" @click.stop="stopSong" v-else>
             <img
               src="../../assets/img/stop (2).png"
               style="width: 50px; height: 50px"
@@ -114,7 +115,7 @@
           </div>
         </div>
         <audio
-          :src="state.url"
+          :src="url"
           id="audio"
           ref="audio"
           @timeupdate="timeupdate"
@@ -125,7 +126,7 @@
 </template>
 <script>
 import { useRoute, useRouter } from "vue-router";
-import { reactive, onMounted, ref, getCurrentInstance } from "vue";
+import { reactive, onMounted, getCurrentInstance, toRefs } from "vue";
 import { getSongUrl, getLyric, getSongDetail } from "../../api/song.js";
 import { useStore } from "vuex";
 import headerTop from "./components/header.vue";
@@ -166,7 +167,6 @@ export default {
     const { proxy } = getCurrentInstance();
     onMounted(() => {
       getSongUrls();
-      // getLyrics();
       getSongDetails();
       store.commit("getButtomMusic", state);
     });
@@ -188,37 +188,9 @@ export default {
       let res = await getLyric(id);
       state.lyric = new Lyric(res.data.lrc.lyric, handleLyric);
       proxy.$refs.lyricList.refresh();
-      // state.lyric.play()
       state.currentLineNum = 0;
       proxy.$refs.lyricList.scrollTo(0, 0, 1000);
       state.animationShow = "running";
-      // proxy.$refs.audio.play();
-      // let lycc = res.data.lrc.lyric;
-      // let lyclist = lycc.split("\n");
-      // let re = /\[\d{2}:\d{2}\.\d{2,3}\]/; //匹配时间
-      // for (let i in lyclist) {
-      //   if (lyclist[i]) {
-      //     let date = lyclist[i].match(re); //匹配时间
-      //     date = date[0].slice(1, -1); //去除【】
-      //     let timelist = date.split(":"); //以:分割
-      //     let m = timelist[0]; //分
-      //     let s = timelist[1]; //秒
-      //     let time = parseFloat(m) * 60 + parseFloat(s); //计算时间
-      //   }
-      // }
-      // for (let i in lyclist) {
-      //   if (lyclist[i]) {
-      //     let date = lyclist[i].match(re); //匹配时间
-      //     date = date[0].slice(1, -1); //去除【】
-      //     let timelist = date.split(":"); //以:分割
-      //     let m = timelist[0];
-      //     let s = timelist[1];
-      //     let time = parseFloat(m) * 60 + parseFloat(s); //计算时间
-      //     let lrcitem = lyclist[i].replace(re, ""); //获取歌词
-      //     state.lyric.push({ time, lrcitem });
-      //   }
-      // }
-      // console.log(state.lyric);
     };
     const handleLyric = ({ lineNum, txt }) => {
       state.currentLineNum = lineNum;
@@ -309,7 +281,7 @@ export default {
       state.isLyric = !state.isLyric
     }
     return {
-      state,
+      ...toRefs(state),
       touch,
       playSong,
       stopSong,

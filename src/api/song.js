@@ -18,3 +18,7 @@ export function getSongDetail(params) {
   return axios.get(`${baseURL}/song/detail?ids=${params}`)
 }
 
+/* 喜欢音乐 */
+export function getSongLike(params) {
+  return axios.get(`${baseURL}/like?id=${params.id}&like=${params.like}`)
+}

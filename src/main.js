@@ -9,6 +9,9 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueLazyload from 'vue-lazyload'
+import './assets/font/iconfont.css'
+import './utils/service'
+import './assets/css/main.css'
 
 createApp(App).
     use(Vant).
