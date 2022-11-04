@@ -1,7 +1,7 @@
 <template>
   <div class="container" :style="{'background':background}">
     <div class="header" :style="{'background':background}">
-      <i class="iconfont icon-zuojiantou icon"></i>
+      <i class="iconfont icon-zuojiantou icon" @click="goBack"></i>
       <div class="search">
         <van-field
           clearable
@@ -63,7 +63,7 @@
       </div>
     </div>
   </div>
-    <bottom-music></bottom-music>
+    <!-- <bottom-music></bottom-music> -->
 </template>
 <script>
 import { getHotList, getSearchSuggest } from "../../api/search.js";
@@ -71,14 +71,14 @@ import { reactive, onMounted, ref, provide, readonly } from "vue";
 import { debounce } from "../../utils/common.js";
 import searchList from "./list.vue";
 import searchDetail from "./detail.vue"
-import bottomMusic from "../../components/layout/bottomMusic.vue"
+import { useRouter } from "vue-router";
 export default {
   components: {
     searchList,
     searchDetail,
-    bottomMusic
   },
   setup() {
+    const router = useRouter()
     let state = reactive({
       hotList: [],
       prefectureList: [
@@ -157,13 +157,17 @@ export default {
       getSearchList()
       background.value = '#f6f6f6'
     }
+    const goBack = () => {
+      router.back()
+    }
     return {
       state,
       allResult,
       background,
       getSearchList,
       handleKeyword,
-      onFocus
+      onFocus,
+      goBack
     };
   },
 };

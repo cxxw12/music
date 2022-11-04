@@ -4,7 +4,9 @@
       <van-tab title="综合">
         <compre-detail></compre-detail>
       </van-tab>
-      <van-tab title="单曲">单曲</van-tab>
+      <van-tab title="单曲">
+        <song-list></song-list>
+      </van-tab>
       <van-tab title="歌单">专辑</van-tab>
       <van-tab title="歌手">歌手</van-tab>
     </van-tabs>
@@ -13,9 +15,11 @@
 <script>
 import { ref } from 'vue'
 import compreDetail from './components/comprehensive.vue'
+import songList from './components/songList.vue'
 export default {
   components: {
-    compreDetail
+    compreDetail,
+    songList
   },
   setup() {
   let active = ref(0)

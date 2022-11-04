@@ -72,11 +72,23 @@
 import { useRoute, useRouter } from "vue-router";
 import { reactive, onMounted } from "vue";
 import { getRecommendDetailList } from "../../api/song.js";
+import { useSongStore } from "../../../store/song"
+// import buttomMusic from "../../components/layout/bottomMusic.vue"
 export default {
+  // components: {
+  //   buttomMusic,
+  // },
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const songStore = useSongStore()
     let id = route.query.id;
+    const playMusic = (id) => {
+      songStore.getSongUrls(id)
+      songStore.getSongDetails(id)
+      songStore.songDesc.isPlay = true
+      songStore.id = id
+    }
     let state = reactive({
       musicList: [],
       picUrl: "",
@@ -95,14 +107,14 @@ export default {
       state.shareCount = reactive(res.data.playlist.shareCount);
       state.subscribedCount = reactive(res.data.playlist.subscribedCount);
     });
-    function playMusic(id) {
-      router.push({
-        path: "/song/play",
-        query: {
-          id: id
-        }
-      })
-    }
+    // function playMusic(id) {
+    //   router.push({
+    //     path: "/song/play",
+    //     query: {
+    //       id: id
+    //     }
+    //   })
+    // }
     return {
       state,
       setBgColor,

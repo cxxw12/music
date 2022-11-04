@@ -1,11 +1,11 @@
 <template>
   <div class="container">
-    <header-top :singer="singer" :songName="song"></header-top>
+    <header-top :singer="songDesc.singer" :songName="songDesc.song"></header-top>
     <div class="header-background">
       <div class="background">
         <van-image
           fit="cover"
-          :src="picUrl"
+          :src="songDesc.picUrl"
           class="cover-img"
           width="100%"
           heigth="100vh"
@@ -20,7 +20,7 @@
             class="cd-black"
             :style="{ 'animation-play-state': animationShow }"
           >
-            <van-image round width="200px" height="200px" :src="picUrl" />
+            <van-image round width="200px" height="200px" :src="songDesc.picUrl" />
           </div>
         </div>
         <div class="lyric" v-else>
@@ -82,7 +82,7 @@
               :style="{ left: curProgress }"
             ></div>
           </div>
-          <p class="next-time">{{ format(duration) }}</p>
+          <p class="next-time">{{ format(songDesc.duration / 1000) }}</p>
         </div>
         <div class="bottom-icon">
           <div class="option-icon">
@@ -94,7 +94,7 @@
           <div
             class="option-icon"
             @click.stop="playSong"
-            v-if="showplay"
+            v-if="!songDesc.isPlay"
           >
             <img
               src="../../assets/img/play.png"
@@ -115,9 +115,10 @@
           </div>
         </div>
         <audio
-          :src="url"
+          :src="songUrl"
           id="audio"
           ref="audio"
+          autoplay
           @timeupdate="timeupdate"
         ></audio>
       </div>
@@ -125,10 +126,11 @@
   </div>
 </template>
 <script>
-import { useRoute, useRouter } from "vue-router";
-import { reactive, onMounted, getCurrentInstance, toRefs } from "vue";
-import { getSongUrl, getLyric, getSongDetail } from "../../api/song.js";
-import { useStore } from "vuex";
+// import { useRoute, useRouter } from "vue-router";
+import { reactive, onMounted, getCurrentInstance, toRefs, onBeforeUnmount } from "vue";
+import { getLyric } from "../../api/song.js";
+import { storeToRefs } from "pinia"
+import { useSongStore } from "../../store/song"
 import headerTop from "./components/header.vue";
 import scrollList from "./components/scroll.vue";
 import Lyric from "lyric-parser";
@@ -138,25 +140,21 @@ export default {
     scrollList,
   },
   setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const store = useStore();
-    let id = route.query.id;
+    const songStore = useSongStore()
+    const { songUrl, songDesc } = storeToRefs(songStore)
     let state = reactive({
       showplay: true,
-      url: "",
       lyric: {}, //歌词
       picUrl: "", //歌曲封面
       arId: "", //歌手id
       animationShow: "paused", //cd旋转
       curProgress: "0",
-      currentTime: 0,
-      duration: "",
       clientX: 0,
       isLyric: false,
       singer: "",
       song: "",
       currentLineNum: 0,
+      currentTime: ''
     });
     let touch = reactive({
       initiated: true,
@@ -166,26 +164,23 @@ export default {
     });
     const { proxy } = getCurrentInstance();
     onMounted(() => {
-      getSongUrls();
-      getSongDetails();
-      store.commit("getButtomMusic", state);
+      proxy.$nextTick(() => {
+        proxy.$refs.audio.currentTime = songStore.songDesc.currentTime
+        state.currentTime = songStore.songDesc.currentTime
+         state.curProgress =
+        (songStore.songDesc.currentTime / songStore.songDesc.duration * 1000) * 100 +
+        "%";
+        if(songStore.songDesc.isPlay) {
+          proxy.$refs.audio.play()
+          state.animationShow = "running"
+        } else {
+          proxy.$refs.audio.pause()
+        }
+      })
     });
-    // 获取歌曲url
-    const getSongUrls = async () => {
-      let res = await getSongUrl(id);
-      state.url = res.data.data[0].url;
-    };
-    // 获取歌曲详情
-    const getSongDetails = async () => {
-      let res = await getSongDetail(id);
-      state.picUrl = res.data.songs[0].al.picUrl;
-      state.arId = res.data.songs[0].ar[0].id;
-      state.singer = res.data.songs[0].ar[0].name;
-      state.song = res.data.songs[0].al.name;
-    };
     // 获取歌词
     const getLyrics = async () => {
-      let res = await getLyric(id);
+      let res = await getLyric(songStore.id);
       state.lyric = new Lyric(res.data.lrc.lyric, handleLyric);
       proxy.$refs.lyricList.refresh();
       state.currentLineNum = 0;
@@ -203,33 +198,48 @@ export default {
     };
     // 播放
     function playSong() {
-      state.showplay = false;
+      songStore.songDesc.isPlay = true;
       state.animationShow = "running";
-      if(JSON.stringify(state.lyric) != '{}')
-      state.lyric.play();
+      if(JSON.stringify(state.lyric) != '{}') {
+        state.lyric.play();
+      }
       proxy.$refs.audio.play();
+      state.currentTime = proxy.$refs.audio.currentTime
+      songStore.$patch(states => {
+        states.songDesc.currentTime = proxy.$refs.audio.currentTime
+      })
     }
     // 暂停
     function stopSong() {
-      state.showplay = true;
+      songStore.songDesc.isPlay = false;
       state.animationShow = "paused";
       proxy.$refs.audio.pause();
-      state.lyric.stop();
+      if(state.isLyric) {
+        state.lyric.stop();
+      }
+      state.currentTime = proxy.$refs.audio.currentTime
+      songStore.$patch(states => {
+        states.songDesc.currentTime = proxy.$refs.audio.currentTime
+      })
     }
     // 进度条设置
     function timeupdate() {
-      state.currentTime = proxy.$refs.audio.currentTime;
-      state.duration = proxy.$refs.audio.duration;
-      state.curProgress =
-        (proxy.$refs.audio.currentTime / proxy.$refs.audio.duration) * 100 +
-        "%";
-      if (proxy.$refs.audio.currentTime == proxy.$refs.audio.duration) {
-        state.showplay = true;
-        state.animationShow = "paused";
-        proxy.$refs.audio.pause();
-      }
-      if (!state.showplay && state.isLyric && JSON.stringify(state.lyric) != '{}') {
-        state.lyric.seek(proxy.$refs.audio.currentTime * 1000);
+      if(proxy.$refs.audio) {
+        songStore.$patch(states => {
+          states.songDesc.currentTime = proxy.$refs.audio.currentTime
+        })
+        state.currentTime = proxy.$refs.audio.currentTime
+        state.curProgress =
+          (proxy.$refs.audio.currentTime / proxy.$refs.audio.duration) * 100 +
+          "%";
+        if (proxy.$refs.audio.currentTime == proxy.$refs.audio.duration) {
+          state.showplay = true;
+          state.animationShow = "paused";
+          proxy.$refs.audio.pause();
+        }
+        if (songStore.songDesc.isPlay && state.isLyric && JSON.stringify(state.lyric) != '{}') {
+          state.lyric.seek(proxy.$refs.audio.currentTime * 1000);
+        }
       }
     }
     // 格式化时间
@@ -280,9 +290,16 @@ export default {
       }
       state.isLyric = !state.isLyric
     }
+    onBeforeUnmount(() => {
+      songStore.$patch(states => {
+        states.songDesc.currentTime = proxy.$refs.audio.currentTime
+      })
+    })
     return {
+      songDesc,
       ...toRefs(state),
       touch,
+      songUrl,
       playSong,
       stopSong,
       timeupdate,

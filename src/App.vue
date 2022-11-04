@@ -1,18 +1,27 @@
 <template>
   <div class="content-all">
     <router-view />
+    <buttom-music v-if="songUrl"></buttom-music>
   </div>
 </template>
 
 <script>
 import { useStore } from "vuex";
+import { useSongStore } from "./store/song"
+import { storeToRefs } from "pinia"
+import buttomMusic from './components/layout/bottomMusic.vue'
 export default {
+  components: {
+    buttomMusic,
+  },
   setup() {
     const store = useStore();
+    const songStore = useSongStore()
+    const { songUrl } = storeToRefs(songStore)
     store.dispatch("getMusicList");
-    /* ;
-    store.dispatch("getMusicList");
-    console.log(store.state.bottomMusic); */
+    return {
+      songUrl
+    }
   },
 };
 </script>

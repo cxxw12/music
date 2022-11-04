@@ -3,6 +3,8 @@ import { createApp } from 'vue'
 import { ElCarousel, ElProgress, ElInput, ElSkeleton, ElSkeletonItem } from 'element-plus'
 import 'element-plus/dist/index.css'
 
+import { createPinia } from 'pinia';
+
 import Vant from 'vant';
 import 'vant/lib/index.css';
 import App from './App.vue'
@@ -13,6 +15,8 @@ import './assets/font/iconfont.css'
 import './utils/service'
 import './assets/css/main.css'
 
+const pinia = createPinia()
+
 createApp(App).
     use(Vant).
     use(ElCarousel).
@@ -21,6 +25,7 @@ createApp(App).
     use(ElSkeleton).
     use(ElSkeletonItem).
     use(VueLazyload).
+    use(pinia).
     use(router).use(store).
     mount('#app')
 

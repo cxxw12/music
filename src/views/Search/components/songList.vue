@@ -21,13 +21,17 @@
 </template>
 <script>
 import { inject, ref } from "vue";
-import { getSongUrl } from "../../../api/song";
+import { useSongStore } from "../../../store/song"
 export default {
   setup() {
     const detail = inject("detail");
     let songs = ref(detail.value.songs);
+    const songStore = useSongStore()
     const playSong = (id) => {
-      console.log(id)
+      songStore.getSongUrls(id)
+      songStore.getSongDetails(id)
+      songStore.songDesc.isPlay = true
+      songStore.id = id
     }
     return {
       songs,
