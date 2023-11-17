@@ -16,7 +16,8 @@
         />
       </div>
     </div>
-    <div class="content">
+    <div class="content">  
+
       <div @click="switchLyric">
         <div class="cd" v-if="!isLyric">
           <div
@@ -32,7 +33,7 @@
           </div>
         </div>
         <div class="lyric" v-else>
-          <scroll-list class="lyricList" :data="lyric.lines" ref="lyricList">
+          <scroll-list class="lyricList" :data="lyric.lines" ref="lyricList"> 
             <div>
               <p
                 class="lrcitem"
@@ -268,7 +269,7 @@ export default {
     }
     function progressClick() {
       state.curProgress =
-        (event.offsetX / proxy.$refs.progress.clientWidth) * 100 + "%";
+        (event.offsetX / proxy.$refs.progress.clientWidth) * 100 + "%"
       proxy.$refs.audio.currentTime =
         proxy.$refs.audio.duration *
         (event.offsetX / proxy.$refs.progress.clientWidth);
