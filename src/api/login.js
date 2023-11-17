@@ -40,3 +40,8 @@ export function postNumber(phone) {
 export function checkVerCode(phone, code) {
   return axios.get(`${baseURL}/captcha/verify?phone=${phone}&captcha=${code}`)
 }
+
+/* 退出 */
+export function logout() {
+  return axios.post(`${baseURL}/logout?timerstamp=${Date.now()}`)
+}

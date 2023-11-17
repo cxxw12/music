@@ -3,27 +3,29 @@
 </template>
 <script >
 import { onMounted } from "vue";
-import { loginStatus } from "../../api/login";
+import { loginStatus, loginRrCheck } from "../../api/login";
 import { useRoute, useRouter } from "vue-router"
 export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
     let imgSrc = route.query.qrImg
+    let key = route.query.key
     onMounted(async () => {
       let timer
       timer = setInterval(async () => {
-        const statusRes = await checkStatus(key)
-        if (statusRes.code === 800) {
+        const statusRes = await loginRrCheck(key)
+        if (statusRes.data.code === 800) {
           alert('二维码已过期,请重新获取')
           clearInterval(timer)
         }
-        if (statusRes.code === 803) {
+        if (statusRes.data.code === 803) {
           // 这一步会返回cookie
           clearInterval(timer)
           alert('授权登录成功')
-          await loginStatus(statusRes.cookie)
-          localStorage.setItem('cookie', statusRes.cookie)
+          let res = await loginStatus(statusRes.data.cookie)
+          localStorage.setItem('cookie', statusRes.data.cookie)
+          localStorage.setItem('account', JSON.stringify(res.data.data.account))
           router.push({
             path: "/home",
             name: "Home",

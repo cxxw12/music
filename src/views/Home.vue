@@ -1,49 +1,50 @@
 <template>
   <!-- 声明在setup可以使用异步通信 -->
-  <Suspense>
-    <!-- 懒加载页面 -->
-    <!-- fallback请求中显示 -->
+  <!-- <Suspense>
     <template #fallback>
       <h1>Loading...</h1>
-    </template>
-    <keep-alive>
-      <div>
-        <top-nav></top-nav>
-        <swiper-com></swiper-com>
-        <recommend-list></recommend-list>
-        <recommend-song></recommend-song>
-        <van-tabbar v-model="active" active-color="#fa3d43">
-          <van-tabbar-item icon="home-o">发现</van-tabbar-item>
-          <van-tabbar-item icon="search" dot>播客</van-tabbar-item>
-          <van-tabbar-item icon="friends-o" badge="5">我的</van-tabbar-item>
-          <van-tabbar-item icon="setting-o" badge="20">关注</van-tabbar-item>
-        </van-tabbar>
-      </div>
-    </keep-alive>
-  </Suspense>
+    </template> -->
+    <div>
+      <top-nav></top-nav>
+      <swiper-com></swiper-com>
+      <recommend-list></recommend-list>
+      <recommend-song></recommend-song>
+      <router-view></router-view>
+    </div>
+  <!-- </Suspense> -->
 </template>
 
 <script>
 import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import topNav from "../components/homeList/topNav.vue";
 import swiperCom from "../components/homeList/swiperCom.vue";
-import recommendList from "../components/homeList/recommendList.vue"
-import recommendSong from "../components/homeList/recommendSong.vue"
+import recommendList from "../components/homeList/recommendList.vue";
+import recommendSong from "../components/homeList/recommendSong.vue";
 export default {
   name: "Home",
   components: {
     topNav,
     swiperCom,
     recommendList,
-    recommendSong
+    recommendSong,
   },
   setup() {
     const active = ref(0);
+    const router = useRouter()
+    const gotoUser = () => {
+      console.log(router.options.routes)
+      router.push({
+        // name: "homeUser",
+        path: '/user'
+      });
+    }
     // change(index) {
     //   active.value = index
     // }
     return {
       active,
+      gotoUser
     };
   },
 };
@@ -71,5 +72,9 @@ h1 {
   100% {
     opacity: 0.1;
   }
+}
+.van-tabbar {
+  position: relative;
+  padding-bottom: 0;
 }
 </style>

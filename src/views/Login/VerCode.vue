@@ -35,6 +35,7 @@
 import { ref, watch } from "vue";
 import { phoneNumFilter } from "../../utils/checkPhone";
 import { useRouter } from "vue-router";
+import { checkVerCode } from "../../api/login"
 export default {
   setup() {
     const router = useRouter();
@@ -48,6 +49,10 @@ export default {
     watch(verCode, (newCode) => {
       clearTimeout(time);
       if (newCode.length == 4) {
+         time = setTimeout(async () => {
+          let res = await checkVerCode(phoneNumber, newCode);
+          console.log(res);
+        });
         router.push({
           path: "/home",
           name: "Home",
@@ -110,7 +115,7 @@ export default {
     }
   }
 }
-/deep/.van-password-input__item {
+:v-deep.van-password-input__item {
   border-bottom: 1px solid #888 !important;
 }
 </style>

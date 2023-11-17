@@ -42,7 +42,7 @@ service.interceptors.response.use(
       top.location.reload();
       return Promise.reject();
     }else {
-      let msg = resp.data ? resp.data.message : '发生未知错误,，请联系管理员'
+      let msg = resp.data ? resp.data.message : '发生未知错误,请联系管理员'
       return Promise.reject({ message: msg, code: resp.status + ''})
     }
   }

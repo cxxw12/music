@@ -49,7 +49,7 @@
     <div style="margin-top: 25px;">
       <div>
         <div class="list-header">
-          <img src="../../assets/svg/player.svg" class="player-icon" />
+          <img src="../../assets/svg/player.svg" class="player-icon" @click="playAll" />
           <p>全部播放(共{{ state.musicList.length }}首)</p>
         </div>
       </div>
@@ -72,12 +72,8 @@
 import { useRoute, useRouter } from "vue-router";
 import { reactive, onMounted } from "vue";
 import { getRecommendDetailList } from "../../api/song.js";
-import { useSongStore } from "../../../store/song"
-// import buttomMusic from "../../components/layout/bottomMusic.vue"
+import { useSongStore } from "../../store/song.js"
 export default {
-  // components: {
-  //   buttomMusic,
-  // },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -99,6 +95,7 @@ export default {
     });
     let setBgColor = { background: `url(${state.picUrl}) no repeat` };
     onMounted(async () => {
+      console.log(router.options.routes)
       let res = await getRecommendDetailList(id);
       state.musicList = reactive(res.data.playlist.tracks);
       state.desc = reactive(res.data.playlist.description);
@@ -107,18 +104,21 @@ export default {
       state.shareCount = reactive(res.data.playlist.shareCount);
       state.subscribedCount = reactive(res.data.playlist.subscribedCount);
     });
-    // function playMusic(id) {
-    //   router.push({
-    //     path: "/song/play",
-    //     query: {
-    //       id: id
-    //     }
-    //   })
-    // }
+    const playAll = () => {
+      songStore.$patch((states) => {
+        states.songPlayList = state.musicList;
+        states.songIndex = 0
+      });
+      songStore.getSongUrls(state.musicList[0].id)
+      songStore.getSongDetails(state.musicList[0].id)
+      songStore.songDesc.isPlay = true
+      songStore.id = state.musicList[0].id
+    }
     return {
       state,
       setBgColor,
-      playMusic
+      playMusic,
+      playAll
     };
   },
 };

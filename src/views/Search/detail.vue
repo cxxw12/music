@@ -32,10 +32,10 @@ export default {
 <style lang="less" scoped>
 .search-detail {
   margin: 70px 15px 0 5px;
-  /deep/.van-tabs__nav {
+  :v-deep.van-tabs__nav {
     background: #f6f6f6 !important;
   }
-  /deep/.van-tabs__content {
+  :v-deep.van-tabs__content {
     margin-top: 15px !important;
   }
 }

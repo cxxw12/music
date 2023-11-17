@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <div class="head">
-      <img src="@/assets/img/logo.png" alt="" />
+      <!-- <img src="@/assets/img/logo.png" alt="" /> -->
     </div>
     <div>
       <img :src="qrImg"/>
@@ -69,7 +69,8 @@ export default {
         path: "/qr",
         name: 'Qr',
         query: {
-          qrImg: qrImg.value
+          qrImg: qrImg.value,
+          key: key
         }
       })
     }

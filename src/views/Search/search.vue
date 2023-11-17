@@ -188,7 +188,7 @@ export default {
     }
     .search {
       width: 100%;
-      & /deep/.van-field__value {
+      & :v-deep.van-field__value {
         border-bottom: 1px solid #555;
         background: rgba(95, 94, 94, 0);
       }

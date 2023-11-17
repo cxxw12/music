@@ -171,7 +171,7 @@ export default {
         line-height: 1rem;
         padding: 0.4rem;
 
-        /deep/ .el-progress-bar__innerText {
+        :v-deep .el-progress-bar__innerText {
           opacity: 0;
         }
       }

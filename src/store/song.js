@@ -16,6 +16,10 @@ export const useSongStore = defineStore('song', {
         currentTime: 0,
         duration: 0
       },
+      isTab: true,
+      songPlayList: [],
+      songIndex: 0,
+      isBottomMusic: true
     }
   },
   actions: {
@@ -44,4 +48,5 @@ export const useSongStore = defineStore('song', {
       }
     }
   },
+  persist: true
 })

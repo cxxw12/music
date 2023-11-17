@@ -3,7 +3,7 @@ import axios from 'axios'
 let baseURL = 'http://localhost:3000'
 
 const AXIOS_OPTS = {
-  baseURL: baseURL,
+  // baseURL: baseURL,
   timeout: 60000,
   withCredential: true
 }

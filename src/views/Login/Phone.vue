@@ -42,6 +42,7 @@ import { useRouter, useRoute } from "vue-router";
 import { isPhoneNumber } from "../../utils/checkPhone";
 import { ref, computed, watch, nextTick } from "vue";
 import { ElMessage } from "element-plus";
+import { postNumber } from "../../api/login"
 export default {
   setup() {
     const router = useRouter();
@@ -61,9 +62,9 @@ export default {
         return ElMessage.error("手机号不合格！");
       } else if (value == false) {
         let phoneInfo = number.value;
-        // let res = await postNumber(phoneInfo);
+        let res = await postNumber(phoneInfo);
         sessionStorage.setItem("phone", phoneInfo);
-        // console.log(res);
+        console.log(res);
         
         router.push({
           path: "/login/phone/vcode",
@@ -114,7 +115,7 @@ export default {
       .input-center {
         margin: 0 0.3rem;
       }
-      /deep/ .el-input {
+      :v-deep .el-input {
         font-size: 1.2rem;
         font-weight: 800;
         color: @font-grey;
@@ -122,7 +123,7 @@ export default {
         margin-top: 1rem;
         outline: none;
       }
-      /deep/ .el-input__wrapper {
+      :v-deep .el-input__wrapper {
         box-shadow: none !important;
       }
     }
@@ -147,7 +148,7 @@ export default {
 .isButton {
   opacity: 0.1;
 }
-/deep/.el-input__inner {
+:v-deep.el-input__inner {
   color: black !important;
 }
 </style>

@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <header-top :singer="songDesc.singer" :songName="songDesc.song"></header-top>
+    <header-top
+      :singer="songDesc.singer"
+      :songName="songDesc.song"
+    ></header-top>
     <div class="header-background">
       <div class="background">
         <van-image
@@ -20,15 +23,16 @@
             class="cd-black"
             :style="{ 'animation-play-state': animationShow }"
           >
-            <van-image round width="200px" height="200px" :src="songDesc.picUrl" />
+            <van-image
+              round
+              width="200px"
+              height="200px"
+              :src="songDesc.picUrl"
+            />
           </div>
         </div>
         <div class="lyric" v-else>
-          <scroll-list
-            class="lyricList"
-            :data="lyric.lines"
-            ref="lyricList"
-          >
+          <scroll-list class="lyricList" :data="lyric.lines" ref="lyricList">
             <div>
               <p
                 class="lrcitem"
@@ -54,7 +58,7 @@
           <div class="option-icon">
             <img src="../../assets/img/song.png" />
           </div>
-          <div class="option-icon">
+          <div class="option-icon" @click="gotoComments">
             <img src="../../assets/img/comment2.png" />
             <!-- <p>999+</p> -->
           </div>
@@ -70,10 +74,7 @@
             id="progress"
             @click="progressClick"
           >
-            <div
-              class="progress-prev"
-              :style="{ width: curProgress }"
-            ></div>
+            <div class="progress-prev" :style="{ width: curProgress }"></div>
             <div
               @touchstart.stop="progressTouchStart"
               @touchmove.stop="progressTouchMove"
@@ -88,7 +89,7 @@
           <div class="option-icon">
             <img src="../../assets/img/suiji.png" />
           </div>
-          <div class="option-icon">
+          <div class="option-icon" @click="playPrev">
             <img src="../../assets/img/prev.png" />
           </div>
           <div
@@ -103,11 +104,11 @@
           </div>
           <div class="option-icon" @click.stop="stopSong" v-else>
             <img
-              src="../../assets/img/stop (2).png"
+              src="../../assets/img/stop2.png"
               style="width: 50px; height: 50px"
             />
           </div>
-          <div class="option-icon">
+          <div class="option-icon" @click="playNext">
             <img src="../../assets/img/next.png" />
           </div>
           <div class="option-icon">
@@ -126,11 +127,17 @@
   </div>
 </template>
 <script>
-// import { useRoute, useRouter } from "vue-router";
-import { reactive, onMounted, getCurrentInstance, toRefs, onBeforeUnmount } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  reactive,
+  onMounted,
+  getCurrentInstance,
+  toRefs,
+  onBeforeUnmount,
+} from "vue";
 import { getLyric } from "../../api/song.js";
-import { storeToRefs } from "pinia"
-import { useSongStore } from "../../store/song"
+import { storeToRefs } from "pinia";
+import { useSongStore } from "../../store/song";
 import headerTop from "./components/header.vue";
 import scrollList from "./components/scroll.vue";
 import Lyric from "lyric-parser";
@@ -140,8 +147,9 @@ export default {
     scrollList,
   },
   setup() {
-    const songStore = useSongStore()
-    const { songUrl, songDesc } = storeToRefs(songStore)
+    const router = useRouter()
+    const songStore = useSongStore();
+    const { songUrl, songDesc } = storeToRefs(songStore);
     let state = reactive({
       showplay: true,
       lyric: {}, //歌词
@@ -154,7 +162,7 @@ export default {
       singer: "",
       song: "",
       currentLineNum: 0,
-      currentTime: ''
+      currentTime: "",
     });
     let touch = reactive({
       initiated: true,
@@ -165,18 +173,20 @@ export default {
     const { proxy } = getCurrentInstance();
     onMounted(() => {
       proxy.$nextTick(() => {
-        proxy.$refs.audio.currentTime = songStore.songDesc.currentTime
-        state.currentTime = songStore.songDesc.currentTime
-         state.curProgress =
-        (songStore.songDesc.currentTime / songStore.songDesc.duration * 1000) * 100 +
-        "%";
-        if(songStore.songDesc.isPlay) {
-          proxy.$refs.audio.play()
-          state.animationShow = "running"
+        proxy.$refs.audio.currentTime = songStore.songDesc.currentTime;
+        state.currentTime = songStore.songDesc.currentTime;
+        state.curProgress =
+          (songStore.songDesc.currentTime / songStore.songDesc.duration) *
+            1000 *
+            100 +
+          "%";
+        if (songStore.songDesc.isPlay) {
+          proxy.$refs.audio.play();
+          state.animationShow = "running";
         } else {
-          proxy.$refs.audio.pause()
+          proxy.$refs.audio.pause();
         }
-      })
+      });
     });
     // 获取歌词
     const getLyrics = async () => {
@@ -200,35 +210,35 @@ export default {
     function playSong() {
       songStore.songDesc.isPlay = true;
       state.animationShow = "running";
-      if(JSON.stringify(state.lyric) != '{}') {
+      if (JSON.stringify(state.lyric) != "{}") {
         state.lyric.play();
       }
       proxy.$refs.audio.play();
-      state.currentTime = proxy.$refs.audio.currentTime
-      songStore.$patch(states => {
-        states.songDesc.currentTime = proxy.$refs.audio.currentTime
-      })
+      state.currentTime = proxy.$refs.audio.currentTime;
+      songStore.$patch((states) => {
+        states.songDesc.currentTime = proxy.$refs.audio.currentTime;
+      });
     }
     // 暂停
     function stopSong() {
       songStore.songDesc.isPlay = false;
       state.animationShow = "paused";
       proxy.$refs.audio.pause();
-      if(state.isLyric) {
+      if (state.isLyric) {
         state.lyric.stop();
       }
-      state.currentTime = proxy.$refs.audio.currentTime
-      songStore.$patch(states => {
-        states.songDesc.currentTime = proxy.$refs.audio.currentTime
-      })
+      state.currentTime = proxy.$refs.audio.currentTime;
+      songStore.$patch((states) => {
+        states.songDesc.currentTime = proxy.$refs.audio.currentTime;
+      });
     }
     // 进度条设置
     function timeupdate() {
-      if(proxy.$refs.audio) {
-        songStore.$patch(states => {
-          states.songDesc.currentTime = proxy.$refs.audio.currentTime
-        })
-        state.currentTime = proxy.$refs.audio.currentTime
+      if (proxy.$refs.audio) {
+        songStore.$patch((states) => {
+          states.songDesc.currentTime = proxy.$refs.audio.currentTime;
+        });
+        state.currentTime = proxy.$refs.audio.currentTime;
         state.curProgress =
           (proxy.$refs.audio.currentTime / proxy.$refs.audio.duration) * 100 +
           "%";
@@ -237,7 +247,11 @@ export default {
           state.animationShow = "paused";
           proxy.$refs.audio.pause();
         }
-        if (songStore.songDesc.isPlay && state.isLyric && JSON.stringify(state.lyric) != '{}') {
+        if (
+          songStore.songDesc.isPlay &&
+          state.isLyric &&
+          JSON.stringify(state.lyric) != "{}"
+        ) {
           state.lyric.seek(proxy.$refs.audio.currentTime * 1000);
         }
       }
@@ -283,18 +297,48 @@ export default {
       touch.endX = touch.prevX;
     }
     function switchLyric() {
-      if(state.isLyric) {
+      if (state.isLyric) {
         state.lyric.stop();
-      } else if (!state.isLyric && JSON.stringify(state.lyric) == '{}') {
-        getLyrics()
+      } else if (!state.isLyric && JSON.stringify(state.lyric) == "{}") {
+        getLyrics();
       }
-      state.isLyric = !state.isLyric
+      state.isLyric = !state.isLyric;
     }
+    const playPrev = () => {
+      songStore.$patch((states) => {
+        if(states.songIndex == 0) {
+          states.songIndex == 0
+        }else {
+          states.songIndex--;
+        }
+      });
+      getSongDetail()
+    };
+    const playNext = () => {
+      songStore.$patch((states) => {
+        if(states.songIndex == states.songPlayList.length) {
+          states.songIndex = 0
+        }else {
+          states.songIndex++;
+        }
+      });
+      getSongDetail()
+    };
     onBeforeUnmount(() => {
-      songStore.$patch(states => {
-        states.songDesc.currentTime = proxy.$refs.audio.currentTime
-      })
-    })
+      songStore.$patch((states) => {
+        states.songDesc.currentTime = proxy.$refs.audio.currentTime;
+      });
+    });
+    const getSongDetail = () => {
+      songStore.getSongUrls(songStore.songPlayList[songStore.songIndex].id);
+      songStore.getSongDetails(songStore.songPlayList[songStore.songIndex].id);
+      songStore.id = songStore.songPlayList[songStore.songIndex].id;
+    };
+    const gotoComments = () => {
+      router.push({
+        path: "/comment/list",
+      });
+    }
     return {
       songDesc,
       ...toRefs(state),
@@ -308,7 +352,10 @@ export default {
       progressTouchMove,
       progressTouchEnd,
       progressClick,
-      switchLyric
+      switchLyric,
+      playPrev,
+      playNext,
+      gotoComments
     };
   },
 };
@@ -335,6 +382,7 @@ export default {
 }
 .container {
   position: relative;
+  z-index: 5;
   .header-background {
     position: relative;
     overflow: hidden;

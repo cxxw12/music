@@ -4,6 +4,7 @@ import { ElCarousel, ElProgress, ElInput, ElSkeleton, ElSkeletonItem } from 'ele
 import 'element-plus/dist/index.css'
 
 import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import Vant from 'vant';
 import 'vant/lib/index.css';
@@ -16,6 +17,7 @@ import './utils/service'
 import './assets/css/main.css'
 
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate);
 
 createApp(App).
     use(Vant).

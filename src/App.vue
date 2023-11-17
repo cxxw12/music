@@ -1,33 +1,37 @@
 <template>
   <div class="content-all">
     <router-view />
-    <buttom-music v-if="songUrl"></buttom-music>
+    <div class="buttom">
+      <buttom-music v-if="songUrl && isBottomMusic"></buttom-music>
+      <tab-bar></tab-bar>
+    </div>
   </div>
 </template>
 
 <script>
-import { useStore } from "vuex";
-import { useSongStore } from "./store/song"
-import { storeToRefs } from "pinia"
-import buttomMusic from './components/layout/bottomMusic.vue'
+import { useSongStore } from "./store/song";
+import { storeToRefs } from "pinia";
+import buttomMusic from "./components/layout/bottomMusic.vue";
+import tabBar from "./components/layout/tabbar.vue"
 export default {
   components: {
     buttomMusic,
+    tabBar
   },
   setup() {
-    const store = useStore();
-    const songStore = useSongStore()
-    const { songUrl } = storeToRefs(songStore)
-    store.dispatch("getMusicList");
+    const songStore = useSongStore();
+    const { songUrl, isBottomMusic } = storeToRefs(songStore);
     return {
-      songUrl
-    }
+      songUrl,
+      isBottomMusic
+    };
   },
 };
 </script>
 
 <style scoped>
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -37,6 +41,12 @@ html, body {
 }
 .content-all {
   height: 100%;
+}
+.buttom {
+  position: fixed !important;
+  bottom: 0;
+  width: 100%;
+  z-index: 4;
 }
 </style> 
 

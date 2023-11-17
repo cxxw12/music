@@ -39,16 +39,16 @@ export default {
   line-height: 150px;
   margin: 0;
 }
-/deep/ .el-carousel__indicator--horizontal {
+:v-deep .el-carousel__indicator--horizontal {
   width: 0;
   height: 0;
 }
-/deep/ .el-carousel__button {
+:v-deep .el-carousel__button {
   width: 0;
   height: 0;
 }
 
-/deep/ .el-carousel__indicator.is-active button {
+:v-deep .el-carousel__indicator.is-active button {
   width: 0;
   height: 0;
 }
